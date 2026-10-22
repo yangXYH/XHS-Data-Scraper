@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>小红书下载服务 · 接口文档</title>
+  <link rel="stylesheet" href="/vendor/swagger-ui.css">
+  <style>
+    *{box-sizing:border-box}body{margin:0;background:#f7f8fb;color:#263044;font-family:"Microsoft YaHei","Segoe UI",sans-serif}.wrap{max-width:1460px;margin:auto;padding:24px 28px}.nav{display:flex;justify-content:space-between;gap:16px;font-size:13px;color:#6e788c}.nav a{color:#d53958;text-decoration:none}.intro{margin:28px 0 18px;background:#fff;border:1px solid #e4e7ee;border-radius:16px;padding:28px}.label{font-size:12px;letter-spacing:2px;color:#d53958}.intro h1{font-size:28px;margin:12px 0}.intro p{font-size:14px;color:#647085;line-height:1.9;margin:10px 0}.steps{display:flex;flex-wrap:wrap;gap:12px;margin:22px 0}.steps span{background:#f7f8fb;border-radius:8px;padding:12px 16px;font-size:14px}.steps b{color:#d53958;margin-right:9px}.credentials{border-top:1px solid #edf0f5;padding-top:18px}.credentials button{border:0;border-radius:7px;background:#da3b5b;color:white;padding:11px 17px;cursor:pointer;font:inherit;font-size:13px}.credentials input{font:12px Consolas,monospace;padding:10px;border:1px solid #d6dce6;border-radius:7px;width:min(550px,100%);margin:10px 8px 0 0}.small{font-size:12px!important}code{background:#f1f3f7;border-radius:4px;padding:3px 6px;overflow-wrap:anywhere}.notice{padding:13px 16px;background:#fff5e5;border-radius:9px;color:#83622b!important}.swagger-ui .info{margin:28px 0}.swagger-ui .info .title{font:600 25px "Microsoft YaHei",sans-serif}.swagger-ui .info .title small{display:none}.swagger-ui .info .url{display:none}.swagger-ui .scheme-container{box-shadow:none;background:white;border-radius:12px}.swagger-ui .topbar{display:none}#message{color:#be304c;font-size:13px;line-height:1.7}#fallback{background:white;padding:16px;border-radius:12px}footer{font-size:12px;color:#718096;padding:24px 0;line-height:1.8}@media(max-width:640px){.wrap{padding:18px 14px}.intro{padding:20px}.intro h1{font-size:23px}.steps{display:grid;gap:8px}.nav{flex-wrap:wrap}}
+  </style>
+</head>
+<body><main class="wrap">
+  <nav class="nav"><a href="/">← 本机下载工作台</a><span>API v1 · 供脚本与其他应用接入</span></nav>
+  <section class="intro">
+    <div class="label">开发者接入</div><h1>小红书下载服务</h1>
+    <p>把作品链接提交给服务，查询处理进度，再获取图片或视频。单篇笔记与作者作品集都按「作者名 / 作品标题」整理保存。</p>
+    <div class="steps"><span><b>01</b>获取管理员提供的 API Key</span><span><b>02</b>点击 Authorize 填入密钥</span><span><b>03</b>提交任务并轮询结果</span></div>
+    <p>接口地址：<code id="base"></code>　鉴权：<code>Authorization: Bearer &lt;API_KEY&gt;</code></p>
+    <p>提交成功返回 <code>202</code>，随后查询任务：<code>done</code> 成功、<code>warning</code> 部分成功、<code>failed</code> 失败、<code>cancelled</code> 已停止。资源文件需要使用同一密钥下载。</p>
+    <p class="notice">文件首先保存在服务器管理员选定的目录。其他电脑通过文件接口下载到自己的电脑。作者采集如显示 login 或 attention，需要服务器操作员在 Edge 窗口登录或完成验证；只能取得当前账号可见的作品。</p>
+    <div id="local-admin" class="credentials" hidden><button id="load-key" type="button">显示并填入本机 API Key</button><div id="key-result" hidden><input id="api-key" readonly aria-label="本机 API Key" autocomplete="off"><button id="copy-key" type="button">复制密钥</button></div><p class="small">此按钮仅本机管理员可用。密钥重启后有效，请仅提供给可信的调用方；不要将浏览器登录资料一并发送。</p></div>
+    <p id="remote-help" class="small">远程访问需由管理员启动「打开局域网共享.bat」，使用服务器局域网 IP，并按需允许 Windows 防火墙入站端口 5557。本机默认仅监听 127.0.0.1。请勿直接暴露到公网。</p>
+    <p id="message" role="status"></p>
+  </section>
+  <div id="fallback">交互文档加载中。也可<a href="/api/v1/openapi.json">下载 OpenAPI 规范</a>导入接口工具。</div><div id="swagger-ui"></div>
+  <footer>接口不依赖工作台页面令牌。POST 请求使用 JSON；建议提供 Idempotency-Key，避免网络重试重复创建任务。工作台设置与系统文件夹操作仅允许本机使用。</footer>
+</main>
+<script src="/vendor/swagger-ui-bundle.js"></script>
+<script>
+  'use strict';
+  document.getElementById('base').textContent=location.origin+'/api/v1';
+  const csrf='__CSRF_TOKEN__';
+  let ui;
+  if(typeof SwaggerUIBundle==='function'){
+    document.getElementById('fallback').hidden=true;
+    ui=SwaggerUIBundle({url:'/api/v1/openapi.json',dom_id:'#swagger-ui',deepLinking:true,defaultModelsExpandDepth:-1,docExpansion:'list',persistAuthorization:false,presets:[SwaggerUIBundle.presets.apis]});
+  }else{document.getElementById('fallback').textContent='交互文档资源未加载，请刷新重试。规范地址：/api/v1/openapi.json';}
+  document.getElementById('local-admin').hidden=!csrf;
+  document.getElementById('load-key').addEventListener('click',async()=>{
+    const message=document.getElementById('message'),button=document.getElementById('load-key');button.disabled=true;
+    try{
+      const response=await fetch('/api/admin/api-key',{method:'POST',headers:{'Content-Type':'application/json','X-XHS-Token':csrf},body:'{}'});
+      const value=await response.json();if(!response.ok)throw Error(value.error?.message||'读取密钥失败');
+      document.getElementById('api-key').value=value.api_key;document.getElementById('key-result').hidden=false;
+      ui?.preauthorizeApiKey('BearerAuth',value.api_key);message.textContent='已填入鉴权信息，可以展开下方接口并点击 Try it out 测试。';
+    }catch(error){message.textContent=error.message;}finally{button.disabled=false;}
+  });
+  document.getElementById('copy-key').addEventListener('click',async()=>{
+    try{await navigator.clipboard.writeText(document.getElementById('api-key').value);document.getElementById('message').textContent='密钥已复制。';}
+    catch{document.getElementById('api-key').select();document.getElementById('message').textContent='请按 Ctrl+C 复制密钥。';}
+  });
+</script></body></html>

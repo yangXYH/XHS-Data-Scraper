@@ -1,0 +1,12 @@
+{
+  "name": "xhs-data-scraper-collector",
+  "version": "1.0.0",
+  "private": true,
+  "description": "作者作品采集的浏览器依赖；普通笔记下载不需要Node.js",
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "playwright": "1.62.1"
+  }
+}
